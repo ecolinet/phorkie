@@ -8,20 +8,14 @@
   -->
   <property file="build.properties" />
 
-  <property name="version-m"  value="0.5" />
-  <property name="version"    value="0.5.0" />
+  <property name="version-m"  value="0.6" />
+  <property name="version"    value="0.6.1" />
   <property name="stability"  value="beta" />
   <property name="releasenotes" value="
-Version 0.5.0 - 2015-01-29
+Version 0.6.1 - 2015-07-15
 --------------------------
-* Implement paste embedding via JavaScript
-* Implement paste embedding via oEmbed
-* Implement single file editing
-* Implement automatic login
-* Implement Elasticsearch 1.3 compatibility
-* Work around PHP bug #68347 to parse ini files correctly
-* Move clone URLs to sidebar
-* Move additional button into text field
+* Fix crash when renaming file
+* Fix jumping to file anchor after file rename
 " />
   <property name="libdir"      value="${phing.dir}/lib"/>
 
@@ -49,6 +43,7 @@ Version 0.5.0 - 2015-01-29
 
    <exclude name="**/.git/"/>
    <exclude name="**/.gitignore/"/>
+   <exclude name="data/cache/**"/>
    <exclude name="data/config.php"/>
    <exclude name="www/**/.phar"/>
    <exclude name="www/repos"/>
@@ -64,9 +59,10 @@ Version 0.5.0 - 2015-01-29
    <include name="ChangeLog"/>
    <include name="README.rst"/>
 
-   <exclude name="data/config.php"/>
    <exclude name="**/.git/"/>
    <exclude name="**/.gitignore/"/>
+   <exclude name="data/cache/**"/>
+   <exclude name="data/config.php"/>
    <exclude name="www/**/.phar"/>
    <exclude name="www/repos"/>
   </fileset>

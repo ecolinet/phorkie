@@ -9,3 +9,4 @@
 /www/*.phar
 /www/*.phar.bz2
 /nbproject
+/data/cache/

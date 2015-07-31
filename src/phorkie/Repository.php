@@ -96,7 +96,6 @@ class Repository
 
     public function loadHash()
     {
-        return;
         if ($this->hash !== null) {
             return;
         }
@@ -112,6 +111,12 @@ class Repository
             );
         }
         $this->hash = $output;
+    }
+
+    public function reloadHash()
+    {
+        $this->hash = null;
+        return $this->loadHash();
     }
 
     /**

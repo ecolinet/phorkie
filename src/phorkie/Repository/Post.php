@@ -5,6 +5,22 @@ class Repository_Post
 {
     public $repo;
 
+    /**
+     * When a new file is created during processing, its name
+     * is stored here for later use.
+     *
+     * @var string
+     */
+    public $newfileName;
+
+    /**
+     * List of files that have been renamed.
+     *
+     * @var array
+     */
+    public $renameMap = array();
+
+
     public function __construct(Repository $repo = null)
     {
         $this->repo = $repo;
@@ -38,6 +54,9 @@ class Repository_Post
             $bChanged = true;
         }
 
+        $this->renameMap   = array();
+        $this->newfileName = null;
+
         foreach ($postData['files'] as $num => $arFile) {
             $bUpload = false;
             if ($_FILES['files']['error'][$num]['upload'] == 0) {
@@ -48,8 +67,8 @@ class Repository_Post
                 continue;
             }
 
-            $orignalName = Tools::sanitizeFilename($arFile['original_name']);
-            $name        = Tools::sanitizeFilename($arFile['name']);
+            $originalName = Tools::sanitizeFilename($arFile['original_name']);
+            $name         = Tools::sanitizeFilename($arFile['name']);
 
             if ($arFile['type'] == '_auto_') {
                 //FIXME: upload
@@ -69,34 +88,39 @@ class Repository_Post
 
             $bNew = false;
             $bDelete = false;
-            if (!isset($orignalName) || $orignalName == '') {
+            if (!isset($originalName) || $originalName == '') {
                 //new file
                 $bNew = true;
                 if (strpos($name, '.') === false) {
                     //automatically append file extension if none is there
                     $name .= '.' . $arFile['type'];
                 }
-            } else if (!$this->repo->hasFile($orignalName)) {
+                $this->newfileName = $name;
+            } else if (!$this->repo->hasFile($originalName)) {
                 //unknown file
                 //FIXME: Show error message
                 continue;
             } else if (isset($arFile['delete']) && $arFile['delete'] == 1) {
                 $bDelete = true;
-            } else if ($orignalName != $name) {
+            } else if ($originalName != $name) {
                 if (strpos($name, '/') === false) {
                     //ignore names with a slash in it, would be new directory
                     //FIXME: what to do with overwrites?
                     $vc->getCommand('mv')
-                        ->addArgument($orignalName)
+                        ->addArgument($originalName)
                         ->addArgument($name)
                         ->execute();
                     $bCommit = true;
+                    $this->renameMap[$originalName] = $name;
                 } else {
-                    $name = $orignalName;
+                    $name = $originalName;
                 }
             }
 
             $file = $this->repo->getFileByName($name, false);
+            if ($originalName !== '') {
+                $originalFile = $this->repo->getFileByName($originalName, false);
+            }
             if ($bDelete) {
                 $command = $vc->getCommand('rm')
                     ->addArgument($file->getFilename())
@@ -112,8 +136,8 @@ class Repository_Post
                     ->execute();
                 $bCommit = true;
             } else if ($bNew
-                || (isset($arFile['content'])
-                    && $file->getContent() != $arFile['content']
+                || (isset($arFile['content']) && isset($originalFile)
+                    && $originalFile->getContent() != $arFile['content']
                 )
             ) {
                 $dir = dirname($file->getFullPath());
@@ -154,6 +178,9 @@ class Repository_Post
             //update info for dumb git HTTP transport
             //the post-update hook should do that IMO, but does not somehow
             $vc->getCommand('update-server-info')->execute();
+
+            //we changed the hash by committing, so reload it
+            $this->repo->reloadHash();
 
             $bChanged = true;
         }

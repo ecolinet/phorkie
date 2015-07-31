@@ -1,3 +1,19 @@
+Version 0.6.1 - 2015-07-15
+--------------------------
+* Fix crash when renaming file
+* Fix jumping to file anchor after file rename
+
+
+Version 0.6.0 - 2015-07-08
+--------------------------
+* Add simple cache for rendered files
+* Add "add file" button to display page
+* Add jumping to file after saving from single file edit mode
+* Adjust "additional options" layout and position
+* Fix autologin reload button; it reloads the current page now
+* Remove OpenID provider buttons
+
+
 Version 0.5.0 - 2015-01-29
 --------------------------
 * Implement paste embedding via JavaScript
