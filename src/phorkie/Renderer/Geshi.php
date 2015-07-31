@@ -17,7 +17,7 @@ class Renderer_Geshi
          * Yes, geshi needs to be in your include path
          * We use the geshi pear package.
          */
-        if (!class_exists('\\geshi', true)) {
+        if (!class_exists('\\GeSHi', true)) {
             require_once $GLOBALS['phorkie']['cfg']['geshi'];
         }
         $geshi = new \geshi($file->getContent(), $this->getType($file));
